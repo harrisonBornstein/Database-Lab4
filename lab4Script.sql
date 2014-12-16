@@ -99,9 +99,12 @@ CREATE TABLE RESERVATION(
 -- as well as the FName and LName of its owner.
 CREATE TABLE CCHOLDER(
 	id              INT(8)          NOT NULL AUTO_INCREMENT PRIMARY KEY,
-	ccInfo          VARCHAR(30),
-	FName           VARCHAR(25),
-	LName           VARCHAR(25)
+	name            VARCHAR(25),
+	type            VARCHAR(25),
+	expMonth        INT(2),
+	expYear         INT(2),
+	ccNumber        INT(16),
+	amount          FLOAT(11,2),
 );
 
 -- The Booking table contains the finalPrice of a Reservation as well as all the information of this reservation. 

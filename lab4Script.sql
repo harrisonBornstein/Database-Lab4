@@ -41,7 +41,7 @@ CREATE TABLE ROUTE(
 	price           FLOAT(8,2)
 );
 
- 
+
 -- The Day table stores the seven days of a week. Initially, this is so in order to avoid invalid dayOfWeek entries in the WeeklyFlight table. 
 CREATE TABLE DAY(
 	id      INT(8)          NOT NULL,
@@ -108,6 +108,7 @@ CREATE TABLE CCHOLDER(
 -- At BrianAir, a Reservation becomes a booking when it has been paid for. Only a Booking allows taking seats on a Flight. 
 -- The Flight.openSeats attribute is thus only decremented when a Reservation has successfully become a Booking.
 CREATE TABLE BOOKING(
+	id          INT(8)          NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	finalPrice  FLOAT(11,2),
 	reservation INT(8)
 );
@@ -115,7 +116,11 @@ CREATE TABLE BOOKING(
 -- The Passenger table contains basic passengers’ information such as FName and LName. 
 -- A Passenger is the general designation of someone partaking in a Flight.
 CREATE TABLE PASSENGER(
+<<<<<<< HEAD
 	id              INT(10)          NOT NULL,
+=======
+	id              INT(8)          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+>>>>>>> parent of 8a55fd9... WIP
 	FName           VARCHAR(25),
 	LName           VARCHAR(25)
 
@@ -139,7 +144,7 @@ CREATE TABLE TRAVELLER(
 -- The Customer table contains information on a Passenger in addition to contact details such as email or phoneNumber. 
 -- A Customer is a Passenger who manages one or several Reservation(s).
 CREATE TABLE CUSTOMER(
-	passengerId      INT(10),
+	passengerId      INT(8),
 	email           VARCHAR(60),
 	phoneNumber VARCHAR(15)
 );
@@ -153,8 +158,6 @@ ALTER TABLE PGROUP              ADD CONSTRAINT pgroup_passngr_resrvtn_pk        
 ALTER TABLE ROUTE               ADD CONSTRAINT route_dep_dest_pk        PRIMARY KEY (airportDep, airportDest);
 ALTER TABLE WEEKDAY             ADD CONSTRAINT weekday_day_year_pk      PRIMARY KEY (day, year);
 ALTER TABLE YEAR                ADD CONSTRAINT year_year_pk     PRIMARY KEY (year);
-ALTER TABLE BOOKING             ADD CONSTRAINT booking_pk    PRIMARY KEY (reservation);
-ALTER TABLE PASSENGER           ADD CONSTRAINT passenger_pk    PRIMARY KEY (id);
 
 -- Definition of Foreign Key constraints --
 
@@ -303,10 +306,10 @@ INSERT INTO CCHOLDER (id, ccInfo, FName, LName) VALUES (3, 'ccinfoholder3', 'Jam
 INSERT INTO CCHOLDER (id, ccInfo, FName, LName) VALUES (4, 'ccinfoholder4', 'Carl', 'Gustaf');
 COMMIT;
 
-INSERT INTO PASSENGER (id, FName, LName) VALUES (1020473844, 'Harrison', 'Bornstein');
-INSERT INTO PASSENGER (id, FName, LName) VALUES (7485903840, 'Tony', 'Vilas');
-INSERT INTO PASSENGER (id, FName, LName) VALUES (3583058304, 'Lorenzo', 'Masciolini');
-INSERT INTO PASSENGER (id, FName, LName) VALUES (3487593475, 'Jonas', 'Vorwerg');
+INSERT INTO PASSENGER (id, FName, LName) VALUES (1, 'Harrison', 'Bornstein');
+INSERT INTO PASSENGER (id, FName, LName) VALUES (2, 'Tony', 'Vilas');
+INSERT INTO PASSENGER (id, FName, LName) VALUES (3, 'Lorenzo', 'Masciolini');
+INSERT INTO PASSENGER (id, FName, LName) VALUES (4, 'Jonas', 'Vorwerg');
 COMMIT;
 
 
@@ -322,7 +325,7 @@ INSERT INTO PGROUP (passenger, reservation) VALUES (1, 1);
 COMMIT;
 
 
-INSERT INTO BOOKING (finalPrice, reservation) VALUES (100, 1);
+INSERT INTO BOOKING (id, finalPrice, reservation) VALUES (1, 100, 1);
 COMMIT;
 
 

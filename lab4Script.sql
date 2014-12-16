@@ -115,7 +115,7 @@ CREATE TABLE BOOKING(
 -- The Passenger table contains basic passengers’ information such as FName and LName. 
 -- A Passenger is the general designation of someone partaking in a Flight.
 CREATE TABLE PASSENGER(
-	id              INT(8)          NOT NULL,
+	id              INT(10)          NOT NULL,
 	FName           VARCHAR(25),
 	LName           VARCHAR(25)
 
@@ -124,7 +124,7 @@ CREATE TABLE PASSENGER(
 -- The PGroup table stores information on the group of Passengers partaking in a Reservation. 
 -- A PGroup can be constituted of one or several Passengers who all participate in the same Reservation.
 CREATE TABLE PGROUP(
-	passenger   INT(8),
+	passenger   INT(10),
 	reservation INT(8)
 );
 
@@ -132,7 +132,7 @@ CREATE TABLE PGROUP(
 -- Entries into this table are made automatically when the Booking is confirmed.
 CREATE TABLE TRAVELLER(
 	ticketNumber    INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-	passenger               INT(8),
+	passenger               INT(10),
 	booking                 INT(8)
 );
 

@@ -50,7 +50,8 @@ CREATE TABLE DAY(
 
 -- The Year table stores the years during which BrianAir operates.
 CREATE TABLE YEAR(
-	year    INT(4)
+	year    INT(4),
+	pFactor FLOAT(5, 2)
 );
 
 
@@ -61,7 +62,7 @@ CREATE TABLE YEAR(
 CREATE TABLE WEEKDAY(
 	day             INT(8),
 	year            INT(4),
-	priceFactor     FLOAT(5,2)
+	priceFactor     FLOAT(5, 2)
 );
 
 -- The WeeklyFlight table stores all the flights the company proposes on a weekly basis.
@@ -89,10 +90,10 @@ CREATE TABLE FLIGHT(
 -- A Reservation is paid for by a CCHolder (Credit Card Holder).
 CREATE TABLE RESERVATION(
 	id    INT(8)          NOT NULL AUTO_INCREMENT PRIMARY KEY,
-	pgroup    INT(8),
 	flight    INT(8),
 	ccholder  INT(8),
-	customer  INT(8)
+	customer  INT(8),
+	pgroup    INT(8)
 );
 
 -- The CCHolder (Credit Card Holder) table stores the Credit Card information ccInfo about the payment made for a Reservation 
@@ -118,7 +119,7 @@ CREATE TABLE BOOKING(
 -- The Passenger table contains basic passengers’ information such as FName and LName. 
 -- A Passenger is the general designation of someone partaking in a Flight.
 CREATE TABLE PASSENGER(
-	id              INT(8)          NOT NULL,
+	id              INT(8)          NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	FName           VARCHAR(25),
 	LName           VARCHAR(25)
 
@@ -127,7 +128,7 @@ CREATE TABLE PASSENGER(
 -- The PGroup table stores information on the group of Passengers partaking in a Reservation. 
 -- A PGroup can be constituted of one or several Passengers who all participate in the same Reservation.
 CREATE TABLE PGROUP(
-	passenger   INT(8),
+	passenger   INT(10),
 	reservation INT(8)
 );
 
@@ -135,7 +136,7 @@ CREATE TABLE PGROUP(
 -- Entries into this table are made automatically when the Booking is confirmed.
 CREATE TABLE TRAVELLER(
 	ticketNumber    INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-	passenger               INT(8),
+	passenger               INT(10),
 	booking                 INT(8)
 );
 
@@ -157,7 +158,6 @@ ALTER TABLE ROUTE               ADD CONSTRAINT route_dep_dest_pk        PRIMARY 
 ALTER TABLE WEEKDAY             ADD CONSTRAINT weekday_day_year_pk      PRIMARY KEY (day, year);
 ALTER TABLE YEAR                ADD CONSTRAINT year_year_pk     PRIMARY KEY (year);
 ALTER TABLE BOOKING             ADD CONSTRAINT booking_pk    PRIMARY KEY (reservation);
-ALTER TABLE PASSENGER           ADD CONSTRAINT passenger_pk    PRIMARY KEY (id);
 
 -- Definition of Foreign Key constraints --
 
@@ -219,7 +219,7 @@ ALTER TABLE TRAVELLER           ADD (
 	CONSTRAINT      traveller_passenger_fk  FOREIGN KEY (passenger)
 	REFERENCES      PASSENGER(id),
 	CONSTRAINT      traveller_booking_fk    FOREIGN KEY (booking)
-	REFERENCES      BOOKING(id)
+	REFERENCES      BOOKING(reservation)
 );
 
 ALTER TABLE CUSTOMER            ADD (
@@ -274,13 +274,14 @@ INSERT INTO WEEKDAY (day, year, priceFactor) VALUES (6, 2015, 6.5); -- Saturdays
 INSERT INTO WEEKDAY (day, year, priceFactor) VALUES (7, 2015, 5.0); -- Sundays 2015
 COMMIT;
 
-INSERT INTO WEEKLYFLIGHT (id, airportDest, airportDep, day, year, depTime) VALUES (1, 1, 2, 1, 2014, '06:35:00');
-INSERT INTO WEEKLYFLIGHT (id, airportDest, airportDep, day, year, depTime) VALUES (2, 4, 3, 2, 2014, '13:40:00');
-INSERT INTO WEEKLYFLIGHT (id, airportDest, airportDep, day, year, depTime) VALUES (3, 3, 1, 3, 2014, '20:00:00');
-INSERT INTO WEEKLYFLIGHT (id, airportDest, airportDep, day, year, depTime) VALUES (4, 2, 4, 4, 2014, '14:50:00');
-INSERT INTO WEEKLYFLIGHT (id, airportDest, airportDep, day, year, depTime) VALUES (5, 4, 3, 5, 2015, '04:30:00');
-INSERT INTO WEEKLYFLIGHT (id, airportDest, airportDep, day, year, depTime) VALUES (6, 2, 4, 6, 2015, '22:15:00');
-INSERT INTO WEEKLYFLIGHT (id, airportDest, airportDep, day, year, depTime) VALUES (7, 1, 2, 7, 2015, '17:30:00');
+
+INSERT INTO WEEKLYFLIGHT (id, day, year, depTime, airportDep, airportDest) VALUES (1, 1, 2014, '06:35:00', 1, 2);
+INSERT INTO WEEKLYFLIGHT (id, day, year, depTime, airportDep, airportDest) VALUES (2, 2, 2014, '13:40:00', 4, 3);
+INSERT INTO WEEKLYFLIGHT (id, day, year, depTime, airportDep, airportDest) VALUES (3, 3, 2014, '20:00:00', 3, 1);
+INSERT INTO WEEKLYFLIGHT (id, day, year, depTime, airportDep, airportDest) VALUES (4, 4, 2014, '14:50:00', 2, 4);
+INSERT INTO WEEKLYFLIGHT (id, day, year, depTime, airportDep, airportDest) VALUES (5, 5, 2015, '04:30:00', 4, 3);
+INSERT INTO WEEKLYFLIGHT (id, day, year, depTime, airportDep, airportDest) VALUES (6, 6, 2015, '22:15:00', 2, 4);
+INSERT INTO WEEKLYFLIGHT (id, day, year, depTime, airportDep, airportDest) VALUES (7, 7, 2015, '17:30:00', 1, 2);
 COMMIT;
 
 
@@ -306,10 +307,10 @@ INSERT INTO CCHOLDER (id, ccInfo, FName, LName) VALUES (3, 'ccinfoholder3', 'Jam
 INSERT INTO CCHOLDER (id, ccInfo, FName, LName) VALUES (4, 'ccinfoholder4', 'Carl', 'Gustaf');
 COMMIT;
 
-INSERT INTO PASSENGER (id, FName, LName) VALUES (1020473844, 'Harrison', 'Bornstein');
-INSERT INTO PASSENGER (id, FName, LName) VALUES (7485903840, 'Tony', 'Vilas');
-INSERT INTO PASSENGER (id, FName, LName) VALUES (3583058304, 'Lorenzo', 'Masciolini');
-INSERT INTO PASSENGER (id, FName, LName) VALUES (3487593475, 'Jonas', 'Vorwerg');
+INSERT INTO PASSENGER (id, FName, LName) VALUES (1, 'Harrison', 'Bornstein');
+INSERT INTO PASSENGER (id, FName, LName) VALUES (2, 'Tony', 'Vilas');
+INSERT INTO PASSENGER (id, FName, LName) VALUES (3, 'Lorenzo', 'Masciolini');
+INSERT INTO PASSENGER (id, FName, LName) VALUES (4, 'Jonas', 'Vorwerg');
 COMMIT;
 
 

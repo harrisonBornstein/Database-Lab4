@@ -50,7 +50,8 @@ CREATE TABLE DAY(
 
 -- The Year table stores the years during which BrianAir operates.
 CREATE TABLE YEAR(
-	year    INT(4)
+	year    INT(4),
+	pFactor FLOAT(5, 2)
 );
 
 
@@ -61,7 +62,7 @@ CREATE TABLE YEAR(
 CREATE TABLE WEEKDAY(
 	day             INT(8),
 	year            INT(4),
-	priceFactor     FLOAT(5,2)
+	priceFactor     FLOAT(5, 2)
 );
 
 -- The WeeklyFlight table stores all the flights the company proposes on a weekly basis.
@@ -89,10 +90,10 @@ CREATE TABLE FLIGHT(
 -- A Reservation is paid for by a CCHolder (Credit Card Holder).
 CREATE TABLE RESERVATION(
 	id    INT(8)          NOT NULL AUTO_INCREMENT PRIMARY KEY,
-	pgroup    INT(8),
 	flight    INT(8),
 	ccholder  INT(8),
-	customer  INT(8)
+	customer  INT(8),
+	pgroup    INT(8)
 );
 
 -- The CCHolder (Credit Card Holder) table stores the Credit Card information ccInfo about the payment made for a Reservation 
@@ -270,13 +271,14 @@ INSERT INTO WEEKDAY (day, year, priceFactor) VALUES (6, 2015, 6.5); -- Saturdays
 INSERT INTO WEEKDAY (day, year, priceFactor) VALUES (7, 2015, 5.0); -- Sundays 2015
 COMMIT;
 
-INSERT INTO WEEKLYFLIGHT (id, airportDest, airportDep, day, year, depTime) VALUES (1, 1, 2, 1, 2014, '06:35:00');
-INSERT INTO WEEKLYFLIGHT (id, airportDest, airportDep, day, year, depTime) VALUES (2, 4, 3, 2, 2014, '13:40:00');
-INSERT INTO WEEKLYFLIGHT (id, airportDest, airportDep, day, year, depTime) VALUES (3, 3, 1, 3, 2014, '20:00:00');
-INSERT INTO WEEKLYFLIGHT (id, airportDest, airportDep, day, year, depTime) VALUES (4, 2, 4, 4, 2014, '14:50:00');
-INSERT INTO WEEKLYFLIGHT (id, airportDest, airportDep, day, year, depTime) VALUES (5, 4, 3, 5, 2015, '04:30:00');
-INSERT INTO WEEKLYFLIGHT (id, airportDest, airportDep, day, year, depTime) VALUES (6, 2, 4, 6, 2015, '22:15:00');
-INSERT INTO WEEKLYFLIGHT (id, airportDest, airportDep, day, year, depTime) VALUES (7, 1, 2, 7, 2015, '17:30:00');
+
+INSERT INTO WEEKLYFLIGHT (id, day, year, depTime, airportDep, airportDest) VALUES (1, 1, 2014, '06:35:00', 1, 2);
+INSERT INTO WEEKLYFLIGHT (id, day, year, depTime, airportDep, airportDest) VALUES (2, 2, 2014, '13:40:00', 4, 3);
+INSERT INTO WEEKLYFLIGHT (id, day, year, depTime, airportDep, airportDest) VALUES (3, 3, 2014, '20:00:00', 3, 1);
+INSERT INTO WEEKLYFLIGHT (id, day, year, depTime, airportDep, airportDest) VALUES (4, 4, 2014, '14:50:00', 2, 4);
+INSERT INTO WEEKLYFLIGHT (id, day, year, depTime, airportDep, airportDest) VALUES (5, 5, 2015, '04:30:00', 4, 3);
+INSERT INTO WEEKLYFLIGHT (id, day, year, depTime, airportDep, airportDest) VALUES (6, 6, 2015, '22:15:00', 2, 4);
+INSERT INTO WEEKLYFLIGHT (id, day, year, depTime, airportDep, airportDest) VALUES (7, 7, 2015, '17:30:00', 1, 2);
 COMMIT;
 
 

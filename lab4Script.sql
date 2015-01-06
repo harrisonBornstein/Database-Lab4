@@ -104,7 +104,7 @@ CREATE TABLE CCHOLDER(
 	expMonth        INT(2),
 	expYear         INT(2),
 	ccNumber        INT(16),
-	amount          FLOAT(11,2),
+	amount          FLOAT(11,2)
 );
 
 -- The Booking table contains the finalPrice of a Reservation as well as all the information of this reservation. 

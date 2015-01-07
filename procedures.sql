@@ -92,7 +92,7 @@ create a function that shows the number of available seats according to the rese
 Add this function to the functions where it should be used as a check in order to allow the customer to proceed to the next step.*/
 
 DELIMITER //
-CREATE FUNCTION count_taken_seats (IN paramFlight INT)
+CREATE FUNCTION count_open_seats (IN paramFlight INT)
 RETURNS INT
 BEGIN
     DECLARE taken_seats INT
@@ -108,6 +108,6 @@ BEGIN
                                 )
                             )
                         ;)
-    RETURN taken_seats
+    RETURN (60 - taken_seats)
 END //
 DELIMITER ;

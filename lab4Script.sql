@@ -92,8 +92,7 @@ CREATE TABLE RESERVATION(
     id    INT(8)          NOT NULL AUTO_INCREMENT PRIMARY KEY,
     flight    INT(8),
     ccholder  INT(8),
-    customer  INT(8),
-    pgroup    INT(8)
+    customer  INT(8)
 );
 
 -- The CCHolder (Credit Card Holder) table stores the Credit Card information ccInfo about the payment made for a Reservation 
@@ -154,7 +153,7 @@ CREATE TABLE CUSTOMER(
 ALTER TABLE CUSTOMER            ADD CONSTRAINT customer_passenger_pk    PRIMARY KEY (passengerId);
 ALTER TABLE TRAVELLER           ADD CONSTRAINT traveller_pk    PRIMARY KEY (ticketNumber);
 ALTER TABLE DAY                 ADD CONSTRAINT day_id_pk        PRIMARY KEY (id);
-ALTER TABLE PGROUP              ADD CONSTRAINT pgroup_passngr_resrvtn_pk        PRIMARY KEY (reservation);
+ALTER TABLE PGROUP              ADD CONSTRAINT pgroup_passngr_resrvtn_pk        PRIMARY KEY (reservation,passenger);
 ALTER TABLE ROUTE               ADD CONSTRAINT route_dep_dest_pk        PRIMARY KEY (airportDep, airportDest);
 ALTER TABLE WEEKDAY             ADD CONSTRAINT weekday_day_year_pk      PRIMARY KEY (day, year);
 ALTER TABLE YEAR                ADD CONSTRAINT year_year_pk     PRIMARY KEY (year);
@@ -194,8 +193,6 @@ ALTER TABLE FLIGHT                      ADD (
 );
 
 ALTER TABLE RESERVATION         ADD (
-    CONSTRAINT      reservation_pgroup_fk   FOREIGN KEY (pgroup)
-    REFERENCES      PGROUP(reservation),
     CONSTRAINT      reservation_flight_fk   FOREIGN KEY (flight)
     REFERENCES      FLIGHT(id),
     CONSTRAINT      reservation_ccholder_fk FOREIGN KEY (ccholder)
@@ -293,16 +290,6 @@ INSERT INTO FLIGHT (id, fdate, openSeats, weeklyflight) VALUES (4, '2015-07-14',
 COMMIT;
 
 
--- CREATE PROCEDURE populateFlights(IN startDate DATE,IN endDate DATE)
--- BEGIN
---  DECLARE x DATE;
---  SET x = startDate;
---  WHILE x != endDate DO
-
---  INSERT INTO FLIGHT (fdate, openSeats, weeklyflight) VALUES (, 60, );
--- END;
-
-
 INSERT INTO CCHOLDER (id, type, name, expMonth, expYear, ccNumber, amount) VALUES (1, 'Visa', 'Harrison Born', 10, 2016, 6487859495039485, 400);
 INSERT INTO CCHOLDER (id, type, name, expMonth, expYear, ccNumber, amount) VALUES (2, 'Mastercard', 'Tony', 4, 2100, 9875048504820475, 693);
 INSERT INTO CCHOLDER (id, type, name, expMonth, expYear, ccNumber, amount) VALUES (3, 'Discovery', 'James', 2, 2018, 8408480524394859, 800);
@@ -321,10 +308,12 @@ INSERT INTO CUSTOMER (passengerId, email, phoneNumber) VALUES (2, 'tonvi217@stud
 COMMIT;
 
 
-INSERT INTO RESERVATION (id, pgroup, flight, ccholder, customer) VALUES (1, NULL,1,NULL,1);
+INSERT INTO RESERVATION (id, flight, ccholder, customer) VALUES (1,1,NULL,1);
+INSERT INTO RESERVATION (id, flight, ccholder, customer) VALUES (2,1,NULL,1);
 COMMIT;
 
-INSERT INTO PGROUP (passenger, reservation) VALUES (1, 1);
+INSERT INTO PGROUP (passenger, reservation) VALUES (1, 2);
+INSERT INTO PGROUP (passenger, reservation) VALUES (2, 2);
 COMMIT;
 
 

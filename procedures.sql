@@ -43,12 +43,30 @@ You do not need to implement this protection.
 as soon as a payment for that reservation has been received. 
 You may use a mathematical formula based on for example the reservation number to calculate the ticket number(s). 
 The actual payment transaction takes place in the database of the credit card company and need not be considered here.*/
+DROP TRIGGER IF EXISTS issue_booking;
 DELIMITER //
 CREATE TRIGGER issue_booking AFTER UPDATE ON RESERVATION
 FOR EACH ROW
 BEGIN
+    DECLARE done INT DEFAULT 0;
+    DECLARE pReservation INT;
+    DECLARE pID INT;
+    DECLARE cur CURSOR FOR SELECT reservation,passenger FROM PGROUP;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
     IF NOT (NEW.ccholder <=> OLD.ccholder) THEN
             INSERT INTO BOOKING (reservation,finalPrice) VALUES (NEW.id, (SELECT amount FROM CCHOLDER WHERE id = NEW.ccholder));
+            OPEN cur;
+            read_loop: LOOP 
+            FETCH cur INTO pReservation,pID;
+                IF done THEN
+                    LEAVE read_loop;
+                END IF;
+                INSERT INTO TRAVELLER (ticketNumber,passenger,booking) VALUES (1,1,1);
+                -- IF (pReservation <=> NEW.id) THEN
+                --     INSERT INTO TRAVELLER (ticketNumber,passenger,booking) VALUES (pReservation,pID,NEW.id);
+                -- END IF;
+            END LOOP;
+            CLOSE cur;
     END IF;
 END//    
 DELIMITER ;

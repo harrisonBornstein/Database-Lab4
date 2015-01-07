@@ -85,3 +85,29 @@ compared of doing them in a java-script on the web-page in the front-end of the 
     and an average customer can also make reservations through the BrianAir website, 
     there would be two different codes to make the same processing of data. 
     Whereas using stored procedures does it in only one place, making this easier and less prone to errors. */                
+
+
+/*6. In the above scenario we do not take the number of unpaid seats into account. Given a flight, and a date (if necessary), 
+create a function that shows the number of available seats according to the reservation strategy (i.e. only payed seats are considered as booked, see. 1.i).
+Add this function to the functions where it should be used as a check in order to allow the customer to proceed to the next step.*/
+
+DELIMITER //
+CREATE FUNCTION count_taken_seats (IN paramFlight INT)
+RETURNS INT
+BEGIN
+    DECLARE taken_seats INT
+    SET taken_seats = ( SELECT count(passenger)
+                        FROM PGROUP PG
+                        WHERE PG.reservation IN (
+                            SELECT B.reservation
+                            FROM BOOKING B
+                            WHERE B.reservation IN (
+                                SELECT R.id 
+                                FROM RESERVATION R
+                                WHERE R.flight = paramFlight
+                                )
+                            )
+                        ;)
+    RETURN taken_seats
+END //
+DELIMITER ;

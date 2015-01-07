@@ -3,7 +3,7 @@ AIRPORT,
 BOOKING,
 CCHOLDER,
 CITY,
-CUSTOMER,
+CONTACT,
 DAY,
 FLIGHT,
 PASSENGER,
@@ -86,13 +86,13 @@ CREATE TABLE FLIGHT(
     weeklyflight    INT(8)
 );
 
--- The Reservation table stores information on the reservation made by a Customer on a specific Flight for a given Group. 
+-- The Reservation table stores information on the reservation made by a CONTACT on a specific Flight for a given Group. 
 -- A Reservation is paid for by a CCHolder (Credit Card Holder).
 CREATE TABLE RESERVATION(
     id    INT(8)          NOT NULL AUTO_INCREMENT PRIMARY KEY,
     flight    INT(8),
     ccholder  INT(8),
-    customer  INT(8)
+    contact  INT(8)
 );
 
 -- The CCHolder (Credit Card Holder) table stores the Credit Card information ccInfo about the payment made for a Reservation 
@@ -103,8 +103,9 @@ CREATE TABLE CCHOLDER(
 	type            VARCHAR(25),
 	expMonth        INT(2),
 	expYear         INT(2),
-	ccNumber        INT(16),
-	amount          FLOAT(11,2)
+	ccNumber        BIGINT(16),
+	amount          FLOAT(11,2),
+    reservation     INT(8)
 );
 
 -- The Booking table contains the finalPrice of a Reservation as well as all the information of this reservation. 
@@ -139,9 +140,9 @@ CREATE TABLE TRAVELLER(
     booking                 INT(8)
 );
 
--- The Customer table contains information on a Passenger in addition to contact details such as email or phoneNumber. 
--- A Customer is a Passenger who manages one or several Reservation(s).
-CREATE TABLE CUSTOMER(
+-- The CONTACT table contains information on a Passenger in addition to contact details such as email or phoneNumber. 
+-- A CONTACT is a Passenger who manages one or several Reservation(s).
+CREATE TABLE CONTACT(
     passengerId      INT(10),
     email           VARCHAR(60),
     phoneNumber VARCHAR(15)
@@ -150,7 +151,7 @@ CREATE TABLE CUSTOMER(
 
 
 -- Definition of Primary Key constraints --
-ALTER TABLE CUSTOMER            ADD CONSTRAINT customer_passenger_pk    PRIMARY KEY (passengerId);
+ALTER TABLE CONTACT            ADD CONSTRAINT contact_passenger_pk    PRIMARY KEY (passengerId);
 ALTER TABLE TRAVELLER           ADD CONSTRAINT traveller_pk    PRIMARY KEY (ticketNumber);
 ALTER TABLE DAY                 ADD CONSTRAINT day_id_pk        PRIMARY KEY (id);
 ALTER TABLE PGROUP              ADD CONSTRAINT pgroup_passngr_resrvtn_pk        PRIMARY KEY (reservation,passenger);
@@ -197,8 +198,8 @@ ALTER TABLE RESERVATION         ADD (
     REFERENCES      FLIGHT(id),
     CONSTRAINT      reservation_ccholder_fk FOREIGN KEY (ccholder)
     REFERENCES      CCHOLDER(id),
-    CONSTRAINT      reservation_customer_fk FOREIGN KEY (customer)
-    REFERENCES      CUSTOMER(passengerId)
+    CONSTRAINT      reservation_CONTACT_fk FOREIGN KEY (contact)
+    REFERENCES      contact(passengerId)
 );
 
 ALTER TABLE BOOKING             ADD (
@@ -220,8 +221,8 @@ ALTER TABLE TRAVELLER           ADD (
     REFERENCES      BOOKING(reservation)
 );
 
-ALTER TABLE CUSTOMER            ADD (
-    CONSTRAINT      customer_passenger_fk   FOREIGN KEY (passengerId)
+ALTER TABLE CONTACT            ADD (
+    CONSTRAINT      CONTACT_passenger_fk   FOREIGN KEY (passengerId)
     REFERENCES      PASSENGER(id)
 );
 
@@ -283,17 +284,17 @@ INSERT INTO WEEKLYFLIGHT (id, day, year, depTime, airportDep, airportDest) VALUE
 COMMIT;
 
 
-INSERT INTO FLIGHT (id, fdate, openSeats, weeklyflight) VALUES (1, '2014-08-27', 60, 1);
+INSERT INTO FLIGHT (id, fdate, openSeats, weeklyflight) VALUES (1, '2014-08-27', 58, 1);
 INSERT INTO FLIGHT (id, fdate, openSeats, weeklyflight) VALUES (2, '2014-12-26', 60, 2);
 INSERT INTO FLIGHT (id, fdate, openSeats, weeklyflight) VALUES (3, '2015-01-11', 60, 7);
 INSERT INTO FLIGHT (id, fdate, openSeats, weeklyflight) VALUES (4, '2015-07-14', 60, 5);
 COMMIT;
 
 
-INSERT INTO CCHOLDER (id, type, name, expMonth, expYear, ccNumber, amount) VALUES (1, 'Visa', 'Harrison Born', 10, 2016, 6487859495039485, 400);
-INSERT INTO CCHOLDER (id, type, name, expMonth, expYear, ccNumber, amount) VALUES (2, 'Mastercard', 'Tony', 4, 2100, 9875048504820475, 693);
-INSERT INTO CCHOLDER (id, type, name, expMonth, expYear, ccNumber, amount) VALUES (3, 'Discovery', 'James', 2, 2018, 8408480524394859, 800);
-INSERT INTO CCHOLDER (id, type, name, expMonth, expYear, ccNumber, amount) VALUES (4, 'Visa', 'Carl', 5, 2016, 8495830595839574, 200);
+INSERT INTO CCHOLDER (id, type, name, expMonth, expYear, ccNumber, amount, reservation) VALUES (1, 'Visa', 'Harrison Born', 10, 2016, 6487859495039485, 400, NULL);
+INSERT INTO CCHOLDER (id, type, name, expMonth, expYear, ccNumber, amount, reservation) VALUES (2, 'Mastercard', 'Tony', 4, 2100, 9875048504820475, 693, NULL);
+INSERT INTO CCHOLDER (id, type, name, expMonth, expYear, ccNumber, amount, reservation) VALUES (3, 'Discovery', 'James', 2, 2018, 8408480524394859, 800, NULL);
+INSERT INTO CCHOLDER (id, type, name, expMonth, expYear, ccNumber, amount, reservation) VALUES (4, 'Visa', 'Carl', 5, 2016, 8495830595839574, 200, NULL);
 COMMIT;
 
 INSERT INTO PASSENGER (id, FName, LName) VALUES (1, 'Harrison', 'Bornstein');
@@ -303,13 +304,13 @@ INSERT INTO PASSENGER (id, FName, LName) VALUES (4, 'Jonas', 'Vorwerg');
 COMMIT;
 
 
-INSERT INTO CUSTOMER (passengerId, email, phoneNumber) VALUES (1, 'harbo085@student.liu.se', '0046720200001');
-INSERT INTO CUSTOMER (passengerId, email, phoneNumber) VALUES (2, 'tonvi217@student.liu.se', '0046704051016');
+INSERT INTO CONTACT (passengerId, email, phoneNumber) VALUES (1, 'harbo085@student.liu.se', '0046720200001');
+INSERT INTO CONTACT (passengerId, email, phoneNumber) VALUES (2, 'tonvi217@student.liu.se', '0046704051016');
 COMMIT;
 
 
-INSERT INTO RESERVATION (id, flight, ccholder, customer) VALUES (1,1,NULL,1);
-INSERT INTO RESERVATION (id, flight, ccholder, customer) VALUES (2,1,NULL,1);
+INSERT INTO RESERVATION (id, flight, ccholder, contact) VALUES (1,1,NULL,1);
+INSERT INTO RESERVATION (id, flight, ccholder, contact) VALUES (2,1,NULL,1);
 COMMIT;
 
 INSERT INTO PGROUP (passenger, reservation) VALUES (1, 2);
@@ -342,7 +343,7 @@ ALTER TABLE RESERVATION
   DROP FOREIGN KEY reservation_pgroup_fk,
   DROP FOREIGN KEY reservation_flight_fk,
   DROP FOREIGN KEY reservation_ccholder_fk,
-  DROP FOREIGN KEY reservation_customer_fk;
+  DROP FOREIGN KEY reservation_CONTACT_fk;
 ALTER TABLE BOOKING
   DROP FOREIGN KEY booking_reservation_fk;
 ALTER TABLE PGROUP
@@ -351,7 +352,7 @@ ALTER TABLE PGROUP
 ALTER TABLE TRAVELLER
   DROP FOREIGN KEY traveller_passenger_fk,
   DROP FOREIGN KEY traveller_booking_fk;
-ALTER TABLE CUSTOMER
-  DROP FOREIGN KEY customer_passenger_fk;
+ALTER TABLE CONTACT
+  DROP FOREIGN KEY contact_passenger_fk;
 
 

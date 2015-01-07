@@ -12,27 +12,38 @@ DELIMITER ;
 /*b. Create a procedure/procedures that adds passenger details (social security number, first name, surname)
  as well as contact information to a reservation.*/
 DELIMITER //
-CREATE PROCEDURE addPDetails(IN reservation INT(8),IN ssn INT(10), IN fname VARCHAR(25), IN lname VARCHAR(25), IN email VARCHAR(60), phoneNumber VARCHAR(15))
+CREATE PROCEDURE addPDetails(IN reservation INT(8),IN ssn INT(10), IN fname VARCHAR(25), IN lname VARCHAR(25), IN email VARCHAR(60), IN phoneNumber VARCHAR(15))
 BEGIN
     INSERT INTO PASSENGER (id,FName,LName) VALUES (ssn,fname,lname);
     INSERT INTO PGROUP (passenger, reservation) VALUES (ssn, reservation);
-    IF email IS NOT NULL THEN
-        INSERT INTO CUSTOMER (passengerID,email,phoneNumber) VALUES (ssn,emailphoneNumber);
+    UPDATE FLIGHT SET openSeats = openSeats -1 WHERE id = (SELECT flight FROM RESERVATION WHERE id = reservation);
+    IF (email IS NOT NULL AND phoneNumber IS NOT NULL) THEN
+        INSERT INTO CONTACT (passengerID,email,phoneNumber) VALUES (ssn,emailphoneNumber);
         UPDATE RESERVATION 
-        SET customer = ssn
+        SET contact = ssn
         WHERE id = reservation;
     END IF; 
 END//
 DELIMITER ;
 
 /*c. Create a procedure that adds payment details such as the name on credit card, the credit card type, 
-the expiry month, the expiry year, the credit card number and the amount drawn from the credit card account.*/ 
+the expiry month, the expiry year, the credit card number and the amount drawn from the credit card account.*/
+DROP PROCEDURE IF EXISTS register_card; 
 DELIMITER //
-CREATE PROCEDURE register_card(cc_name VARCHAR, cc_type VARCHAR, cc_exp_m INT, cc_exp_y INT, cc_num INT, cc_amount FLOAT)
+CREATE PROCEDURE register_card (IN cc_name VARCHAR(50),IN cc_type VARCHAR(25),IN cc_exp_m INT,IN cc_exp_y INT,IN cc_num INT,IN cc_amount FLOAT(11,2),IN resID INT(8))
 BEGIN
-    INSERT INTO CCHOLDER (name, type, expMonth, expYear, ccNumber, amount)
-    VALUES (cc_name, cc_type, cc_exp_m, cc_exp_y, cc_num, cc_amount);
-END //
+    DECLARE test1 INT;
+    DECLARE test2 INT;
+    DECLARE test3 INT;
+    SET test1 := (SELECT IF(contact IS NULL,NULL,contact) AS contact FROM RESERVATION WHERE id =resID); --checks if there is a contact
+    SET test2 := (SELECT COUNT(passenger) FROM PGROUP WHERE reservation=resID); --finds the number of people on the reservation
+    SET test3 := (SELECT openSeats FROM FLIGHT WHERE  id = (SELECT flight FROM RESERVATION WHERE id = resID)); --finds the number of open seats
+    IF(test1 IS NOT NULL AND test2 > 0 AND test3 >= test2) THEN
+        INSERT INTO CCHOLDER (name, type, expMonth, expYear, ccNumber, amount)
+        VALUES (cc_name, cc_type, cc_exp_m, cc_exp_y, cc_num, cc_amount);
+    END IF;   
+END//
+DELIMITER ;
 /*How can you protect the credit card information in the database from hackers? 
 You do not need to implement this protection.
 
@@ -51,6 +62,7 @@ BEGIN
     DECLARE done INT DEFAULT 0;
     DECLARE pReservation INT;
     DECLARE pID INT;
+    DECLARE ticket TEXT;
     DECLARE cur CURSOR FOR SELECT reservation,passenger FROM PGROUP;
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
     IF NOT (NEW.ccholder <=> OLD.ccholder) THEN
@@ -61,15 +73,17 @@ BEGIN
                 IF done THEN
                     LEAVE read_loop;
                 END IF;
-                INSERT INTO TRAVELLER (ticketNumber,passenger,booking) VALUES (1,1,1);
-                -- IF (pReservation <=> NEW.id) THEN
-                --     INSERT INTO TRAVELLER (ticketNumber,passenger,booking) VALUES (pReservation,pID,NEW.id);
-                -- END IF;
+                IF (pReservation <=> NEW.id) THEN
+                    SET ticket = CONCAT (pReservation,pID);
+                    INSERT INTO TRAVELLER (ticketNumber,passenger,booking) VALUES (ticket,pID,NEW.id);
+                END IF;
             END LOOP;
             CLOSE cur;
     END IF;
 END//    
 DELIMITER ;
+
+
             
 /*e. Give three reasons why it is better to do the processing in stored procedures in the data-base 
 compared of doing them in a java-script on the web-page in the front-end of the system?
@@ -82,32 +96,30 @@ compared of doing them in a java-script on the web-page in the front-end of the 
     and thus are independent of any other implementation. As such, it appears logical that the processing of data should be made
     within the database itself and not depend on one or several other interfaces. 
     For example if a BrianAir employee uses a specific software to book reservations 
-    and an average customer can also make reservations through the BrianAir website, 
+    and an average contact can also make reservations through the BrianAir website, 
     there would be two different codes to make the same processing of data. 
-    Whereas using stored procedures does it in only one place, making this easier and less prone to errors. */                
+    Whereas using stored procedures does it in only one place, making this easier and less prone to errors. */   
 
 
-/*6. In the above scenario we do not take the number of unpaid seats into account. Given a flight, and a date (if necessary), 
+
+
+    /*6. In the above scenario we do not take the number of unpaid seats into account. Given a flight, and a date (if necessary), 
 create a function that shows the number of available seats according to the reservation strategy (i.e. only payed seats are considered as booked, see. 1.i).
-Add this function to the functions where it should be used as a check in order to allow the customer to proceed to the next step.*/
+Add this function to the functions where it should be used as a check in order to allow the contact to proceed to the next step.*/
 
 DELIMITER //
-CREATE FUNCTION count_open_seats (IN paramFlight INT)
-RETURNS INT
+CREATE FUNCTION count_taken_seats(paramFlight INT)
+    RETURNS INT
 BEGIN
-    DECLARE taken_seats INT
-    SET taken_seats = ( SELECT count(passenger)
-                        FROM PGROUP PG
-                        WHERE PG.reservation IN (
-                            SELECT B.reservation
-                            FROM BOOKING B
-                            WHERE B.reservation IN (
-                                SELECT R.id 
-                                FROM RESERVATION R
-                                WHERE R.flight = paramFlight
-                                )
-                            )
-                        ;)
-    RETURN (60 - taken_seats)
-END //
-DELIMITER ;
+    DECLARE taken_seats INT;
+    SET taken_seats = (SELECT COUNT(passenger) FROM PGROUP PG WHERE PG.reservation IN
+                        (SELECT B.reservation FROM BOOKING B WHERE B.reservation IN 
+                        (SELECT R.id FROM RESERVATION R WHERE R.flight = paramFlight)));
+    RETURN taken_seats;
+END//
+DELIMITER ; 
+
+LOOK AT SECTION I
+
+
+             

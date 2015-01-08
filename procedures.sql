@@ -120,6 +120,34 @@ END//
 DELIMITER ; 
 
 LOOK AT SECTION I
+UPDATE WEEKY FLIGHT on ER
+
+
+
+DELIMITER //
+CREATE FUNCTION calc_price (paramFlight INT, paramDate DATE, numPassengers INT) 
+    RETURNS INT
+BEGIN
+    DECLARE final_price FLOAT(5,2);
+    DECLARE _airportDest INT;
+    DECLARE _airportDep INT;
+    DECLARE weekDayFactor FLOAT;
+    DECLARE booked_seats INT;
+    SET booked_seats = (SELECT COUNT(passenger) FROM PGROUP PG WHERE PG.reservation IN 
+                       (SELECT B.reservation FROM BOOKING B WHERE B.reservation IN 
+                       (SELECT R.id FROM RESERVATION R WHERE R.flight = paramFlight)));
+    SELECT airportDest,airportDep INTO _airportDest,_airportDep FROM WEEKLYFLIGHT WHERE id = (SELECT weeklyflight FROM FLIGHT WHERE id = paramFlight);
+    SET weekDayFactor = (SELECT priceFactor FROM WEEKDAY WHERE (day = (SELECT id FROM DAY WHERE name = DAYNAME(paramDate)) AND year = YEAR(paramDate)));
+    SET final_price = (SELECT price FROM ROUTE WHERE (airportDest = _airportDest AND airportDep = _airportDep));
+    RETURN final_price;
+END//
+DELIMITER ; 
+
+
+
+4
+
+SELECT airportDest,airportDep FROM WEEKLYFLIGHT WHERE id = (SELECT weeklyflight FROM FLIGHT WHERE id = paramFlight);
 
 
              

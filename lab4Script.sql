@@ -51,7 +51,7 @@ CREATE TABLE DAY(
 -- The Year table stores the years during which BrianAir operates.
 CREATE TABLE YEAR(
     year    INT(4),
-    pFactor FLOAT(5, 2)
+    passengerFactor FLOAT(5, 2)
 );
 
 
@@ -83,7 +83,7 @@ CREATE TABLE FLIGHT(
     id              INT(8)           NOT NULL AUTO_INCREMENT PRIMARY KEY,
     fdate           DATE,
     openSeats       INT(3),
-    weeklyflight    INT(8)
+    weeklyFlight    INT(8)
 );
 
 -- The Reservation table stores information on the reservation made by a CONTACT on a specific Flight for a given Group. 

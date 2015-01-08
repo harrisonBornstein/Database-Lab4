@@ -115,12 +115,12 @@ BEGIN
     SET taken_seats = (SELECT COUNT(passenger) FROM PGROUP PG WHERE PG.reservation IN
                         (SELECT B.reservation FROM BOOKING B WHERE B.reservation IN 
                         (SELECT R.id FROM RESERVATION R WHERE R.flight = paramFlight)));
-    RETURN taken_seats;
+    RETURN  60 - taken_seats;
 END//
 DELIMITER ; 
 
-LOOK AT SECTION I
-UPDATE WEEKY FLIGHT on ER
+-- LOOK AT SECTION I
+-- UPDATE WEEKY FLIGHT on ER
 
 
 
@@ -128,7 +128,7 @@ DELIMITER //
 CREATE FUNCTION calc_price (paramFlight INT, paramDate DATE, numPassengers INT) 
     RETURNS INT
 BEGIN
-    DECLARE final_price FLOAT(5,2);
+    DECLARE final_price FLOAT;
     DECLARE _airportDest INT;
     DECLARE _airportDep INT;
     DECLARE weekDayFactor FLOAT;
@@ -138,16 +138,31 @@ BEGIN
                        (SELECT R.id FROM RESERVATION R WHERE R.flight = paramFlight)));
     SELECT airportDest,airportDep INTO _airportDest,_airportDep FROM WEEKLYFLIGHT WHERE id = (SELECT weeklyflight FROM FLIGHT WHERE id = paramFlight);
     SET weekDayFactor = (SELECT priceFactor FROM WEEKDAY WHERE (day = (SELECT id FROM DAY WHERE name = DAYNAME(paramDate)) AND year = YEAR(paramDate)));
-    SET final_price = (SELECT price FROM ROUTE WHERE (airportDest = _airportDest AND airportDep = _airportDep));
+    SET final_price = (SELECT price FROM ROUTE WHERE (airportDest = _airportDest AND airportDep = _airportDep)) * weekDayFactor * (booked_seats+numPassengers)/60 * (SELECT pFactor FROM YEAR WHERE year = YEAR(paramDate));
     RETURN final_price;
 END//
 DELIMITER ; 
 
+--ASK ABOUT numPassengers
+--ADD PASSENGERS TO RESERVATION?
+
+DELIMITER //
+CREATE PROCEDURE available_flights (IN airportDep VARCHAR(25), IN airportDest VARCHAR(25), IN numPassengers INT,  IN _date DATE)
+BEGIN
+    DECLARE _airportDest INT;
+    DECLARE _airportDep INT;
+    DECLARE _flightID INT;
+    SET _airportDep  = (SELECT id FROM AIRPORT WHERE name = airportDep);
+    SET _airportDest = (SELECT id FROM AIRPORT WHERE name = airportDest);
+    SELECT FLIGHT.fdate, FLIGHT.openSeats, WEEKLYFLIGHT.depTime FROM FLIGHT LEFT JOIN WEEKLYFLIGHT  
+    ON FLIGHT.weeklyflight = WEEKLYFLIGHT.id
+    WHERE (WEEKLYFLIGHT.airportDep = _airportDep AND WEEKLYFLIGHT.airportDest = _airportDest AND FLIGHT.openSeats >= numPassengers AND FLIGHT.fdate = _date);
+END//
+DELIMITER ; 
+
+    
 
 
-4
-
-SELECT airportDest,airportDep FROM WEEKLYFLIGHT WHERE id = (SELECT weeklyflight FROM FLIGHT WHERE id = paramFlight);
 
 
              

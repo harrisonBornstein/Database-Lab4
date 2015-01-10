@@ -7,29 +7,38 @@ CREATE PROCEDURE createReservation(IN _flight INT(8))
 BEGIN 
     IF (((SELECT fdate FROM FLIGHT where id = _flight) < DATE_ADD(CURDATE(),INTERVAL 1 YEAR)) AND count_open_seats(_flight) > 0 ) THEN 
         INSERT INTO RESERVATION (flight) VALUES (_flight);
-    END IF;    
+    END IF;
 END//
 DELIMITER ;
 
-SET @b1 = IF((SELECT fdate FROM FLIGHT where id = 4) < DATE_ADD(CURDATE(),INTERVAL 1 YEAR),1,0);
 
 /*b. Create a procedure/procedures that adds passenger details (social security number, first name, surname)
  as well as contact information to a reservation.*/
+DROP PROCEDURE IF EXISTS addPDetails;
 DELIMITER //
-CREATE PROCEDURE addPDetails(IN reservation INT(8),IN ssn INT(10), IN fname VARCHAR(25), IN lname VARCHAR(25), IN email VARCHAR(60), IN phoneNumber VARCHAR(15))
+CREATE PROCEDURE addPDetails(IN reservation INT(8),IN ssn INT(10), IN fname VARCHAR(25), IN lname VARCHAR(25))
 BEGIN
-    IF (count_open_seats(SELECT flight FROM RESERVATION where id = reservation) > 0 ) THEN
+    DECLARE open_seats INT;
+    DECLARE flight INT;
+    SET flight = (SELECT flight FROM RESERVATION WHERE id = reservation);
+    SET open_seats = (SELECT (count_open_seats(flight)));
+    IF (open_seats > 0) THEN
         INSERT INTO PASSENGER (id,FName,LName) VALUES (ssn,fname,lname);
         INSERT INTO PGROUP (passenger, reservation) VALUES (ssn, reservation);
-        IF (email IS NOT NULL AND phoneNumber IS NOT NULL) THEN
-            INSERT INTO CONTACT (passengerID,email,phoneNumber) VALUES (ssn,emailphoneNumber);
-            UPDATE RESERVATION 
-            SET contact = ssn
-            WHERE id = reservation;
-        END IF; 
     END IF;    
 END//
 DELIMITER ;
+
+DROP PROCEDURE IF EXISTS addContact;
+DELIMITER //
+CREATE PROCEDURE addContact(IN reservation INT(8), IN email VARCHAR(60), IN _phoneNumber VARCHAR(15),IN ssn INT(10))
+BEGIN
+    IF (email IS NOT NULL AND _phoneNumber IS NOT NULL) THEN
+        INSERT INTO CONTACT (passengerID,email,phoneNumber) VALUES (ssn,email,_phoneNumber);
+        UPDATE RESERVATION SET contact = ssn WHERE id = reservation;
+    END IF;
+END// 
+DELIMITER ;       
 
 /*c. Create a procedure that adds payment details such as the name on credit card, the credit card type, 
 the expiry month, the expiry year, the credit card number and the amount drawn from the credit card account.*/
@@ -47,9 +56,8 @@ BEGIN
     SET numPass := (SELECT COUNT(passenger) FROM PGROUP WHERE reservation=resID); 
     SET test3 := (SELECT openSeats FROM FLIGHT WHERE  id = flightID); 
     IF(test1 IS NOT NULL AND numPass > 0 AND test3 >= numPass) THEN
-
         SET price := (SELECT calc_price(flightID, (SELECT fdate FROM FLIGHT WHERE id = flightID),numPass));
-        INSERT INTO CCHOLDER (name, type, expMonth, expYear, ccNumber, price,resID)
+        INSERT INTO CCHOLDER (name, type, expMonth, expYear, ccNumber, amount)
         VALUES (cc_name, cc_type, cc_exp_m, cc_exp_y, cc_num, price);
         UPDATE RESERVATION SET ccholder = (SELECT id FROM CCHOLDER WHERE name = cc_name) WHERE id = resID;
     END IF;   
@@ -120,7 +128,8 @@ compared of doing them in a java-script on the web-page in the front-end of the 
 
     /*6. In the above scenario we do not take the number of unpaid seats into account. Given a flight, and a date (if necessary), 
 create a function that shows the number of available seats according to the reservation strategy (i.e. only payed seats are considered as booked, see. 1.i).
-Add this function to the functions where it should be used as a check in order to allow the contact to proceed to the next step.*/
+Add this function to the functions where it should be used as a check in order to allow the contact to proceed to the next step. Since the number of open
+seats is stored in the database this function is not that usefull to us besides the fact it allows us to check and make sure the stored open seat number is correct*/
 DROP FUNCTION IF EXISTS count_open_seats;
 DELIMITER //
 CREATE FUNCTION count_open_seats(paramFlight INT)
@@ -148,9 +157,7 @@ BEGIN
     DECLARE _airportDep INT;
     DECLARE weekDayFactor FLOAT;
     DECLARE booked_seats INT;
-    SET booked_seats = (SELECT COUNT(passenger) FROM PGROUP WHERE PGROUP.reservation IN 
-                       (SELECT B.reservation FROM BOOKING B WHERE B.reservation IN 
-                       (SELECT R.id FROM RESERVATION R WHERE R.flight = paramFlight)));
+    SET booked_seats = 60 - (SELECT openSeats FROM FLIGHT WHERE id = paramFlight);
     SELECT airportDest,airportDep INTO _airportDest,_airportDep FROM WEEKLYFLIGHT WHERE id = (SELECT weeklyflight FROM FLIGHT WHERE id = paramFlight);
     SET weekDayFactor = (SELECT priceFactor FROM WEEKDAY WHERE (day = (SELECT id FROM DAY WHERE name = DAYNAME(paramDate)) AND year = YEAR(paramDate)));
     SET final_price = (SELECT price FROM ROUTE WHERE (airportDest = _airportDest AND airportDep = _airportDep)) * weekDayFactor * (booked_seats+numPassengers)/60 * (SELECT passengerFactor FROM YEAR WHERE year = YEAR(paramDate));
@@ -161,9 +168,9 @@ DELIMITER ;
 --ASK ABOUT numPassengers
 --ADD PASSENGERS TO RESERVATION?
 
-DROP PROCEDURE IF EXISTS available_flights; 
+DROP PROCEDURE IF EXISTS search_available_flights; 
 DELIMITER //
-CREATE PROCEDURE available_flights (IN airportDep VARCHAR(25),IN airportDest VARCHAR(25),IN numPassengers INT,IN _date DATE)
+CREATE PROCEDURE search_available_flights (IN airportDep VARCHAR(25),IN airportDest VARCHAR(25),IN numPassengers INT,IN _date DATE)
 BEGIN
     DECLARE _airportDest INT;
     DECLARE _airportDep INT;
@@ -189,6 +196,42 @@ LOCK TABLES BOOKING WRITE,FLIGHT WRITE,RESERVATION WRITE;
 UPDATE RESERVATION SET CCHOLDER=2 WHERE id=2;
 UNLOCK TABLES;
 COMMIT;
+
+--Creating and Booking an open flight
+
+mysql> CALL createReservation(2);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> CALL addPDetails(3,10041993,'George','Smith');
+Query OK, 1 row affected (0.01 sec)
+
+mysql> CALL addContact(3,'george12@email.com','9723175555',10041993);
+Query OK, 1 row affected (0.01 sec)
+
+CALL register_card ('George','Visa',5,2016,8495830595839574,3); --This registers the card, charges the correct amount and books the flight.
+Query OK, 1 row affected, 1 warning (0.01 sec)
+
+--Trying to make a reservation when flight is full
+mysql> CALL createReservation(2);
+Query OK, 0 row affected (0.00 sec)
+
+--Trying to make a booking (pay for flight) when flight is full
+CALL register_card ('Joe','Visa',3,2016,8495839995839574,4); --This registers the card, charges the correct amount and books the flight.
+Query OK, 0 row affected, 0 warning (0.01 sec)
+
+--Search with search function
+CALL search_available_flights('dub','lys',4,'2015-08-27');
++------------+-----------+----------+-------+
+| fdate      | openSeats | depTime  | Price |
++------------+-----------+----------+-------+
+| 2015-08-27 |        58 | 06:35:00 |    60 |
+| 2015-08-27 |        60 | 17:30:00 |    40 |
++------------+-----------+----------+-------+
+2 rows in set (0.01 sec)
+
+Query OK, 0 rows affected (0.01 sec)
+
+
 
 
 

@@ -253,8 +253,8 @@ INSERT INTO DAY (id, name) VALUES   (6,"Saturday");
 INSERT INTO DAY (id, name) VALUES   (7,"Sunday");
 COMMIT;
 
-INSERT INTO YEAR (year) VALUES (2014);
-INSERT INTO YEAR (year) VALUES (2015);
+INSERT INTO YEAR (year,passengerFactor) VALUES (2014,1);
+INSERT INTO YEAR (year,passengerFactor) VALUES (2015,2);
 COMMIT;
 
 INSERT INTO WEEKDAY (day, year, priceFactor) VALUES (1, 2014, 0.5); -- Mondays 2014
@@ -284,10 +284,11 @@ INSERT INTO WEEKLYFLIGHT (id, day, year, depTime, airportDep, airportDest) VALUE
 COMMIT;
 
 
-INSERT INTO FLIGHT (id, fdate, openSeats, weeklyflight) VALUES (1, '2014-08-27', 58, 1);
-INSERT INTO FLIGHT (id, fdate, openSeats, weeklyflight) VALUES (2, '2014-12-26', 60, 2);
+INSERT INTO FLIGHT (id, fdate, openSeats, weeklyflight) VALUES (1, '2015-08-27', 58, 1);
+INSERT INTO FLIGHT (id, fdate, openSeats, weeklyflight) VALUES (2, '2015-12-26', 60, 2);
 INSERT INTO FLIGHT (id, fdate, openSeats, weeklyflight) VALUES (3, '2015-01-11', 60, 7);
 INSERT INTO FLIGHT (id, fdate, openSeats, weeklyflight) VALUES (4, '2015-07-14', 60, 5);
+INSERT INTO FLIGHT (id, fdate, openSeats, weeklyflight) VALUES (5, '2015-08-27', 60, 7);
 COMMIT;
 
 
@@ -318,12 +319,6 @@ INSERT INTO PGROUP (passenger, reservation) VALUES (2, 2);
 COMMIT;
 
 
-INSERT INTO BOOKING (finalPrice, reservation) VALUES (100, 1);
-COMMIT;
-
-
-INSERT INTO TRAVELLER (ticketNumber, passenger, booking) VALUES (1, 1, 1);
-COMMIT;
 
 
 ALTER TABLE AIRPORT
@@ -353,6 +348,6 @@ ALTER TABLE TRAVELLER
   DROP FOREIGN KEY traveller_passenger_fk,
   DROP FOREIGN KEY traveller_booking_fk;
 ALTER TABLE CONTACT
-  DROP FOREIGN KEY contact_passenger_fk;
+  DROP FOREIGN KEY CONTACT_passenger_fk;
 
 

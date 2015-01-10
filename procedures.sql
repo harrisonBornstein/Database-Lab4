@@ -183,6 +183,7 @@ BEGIN
 END//
 DELIMITER ; 
 
+
 --For the first case if you assume it is correct then after you START TRANSACTION; you would commit it to the database with the command commit; For the second case you instead of COMMIT; you would call ROLLBACK;
     
 START TRANSACTION;
@@ -231,6 +232,240 @@ CALL search_available_flights('dub','lys',4,'2015-08-27');
 
 Query OK, 0 rows affected (0.01 sec)
 
+
+mysql> INSERT INTO CITY (id, name) VALUES (1, "dublin");
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO CITY (id, name) VALUES (2, "lyon");
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO CITY (id, name) VALUES (3, "stockholm");
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO CITY (id, name) VALUES (4, "dallas");
+Query OK, 1 row affected (0.00 sec)
+
+mysql> COMMIT; 
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> 
+mysql> INSERT INTO AIRPORT (id, name, city) VALUES (1, "dub", 1);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO AIRPORT (id, name, city) VALUES (2, "lys", 2);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO AIRPORT (id, name, city) VALUES (3, "arn", 3);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO AIRPORT (id, name, city) VALUES (4, "dfw", 4);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> COMMIT;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> INSERT INTO ROUTE (airportDep, airportDest, year, length, price) VALUES (1, 2, 2014, '02:15:00', 150.00);   -- Dublin-Lyon
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO ROUTE (airportDep, airportDest, year, length, price) VALUES (2, 4, 2014, '16:00:00', 1500.00);  -- Lyon-Dallas
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO ROUTE (airportDep, airportDest, year, length, price) VALUES (3, 1, 2015, '05:05:00', 75.00);    -- Stockholm-Dublin
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO ROUTE (airportDep, airportDest, year, length, price) VALUES (4, 3, 2015, '14:50:00', 2000.00);  -- Dallas-Stockholm
+Query OK, 1 row affected (0.00 sec)
+
+mysql> COMMIT;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> INSERT INTO DAY (id, name) VALUES   (1,"Monday");
+Query OK, 1 row affected (0.01 sec)
+
+mysql> INSERT INTO DAY (id, name) VALUES   (2,"Tuesday");                                                                                                                                                       
+Query OK, 1 row affected (0.01 sec)
+
+mysql> INSERT INTO DAY (id, name) VALUES   (3,"Wednesday");
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO DAY (id, name) VALUES   (4,"Thursday");
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO DAY (id, name) VALUES   (5,"Friday");
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO DAY (id, name) VALUES   (6,"Saturday");
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO DAY (id, name) VALUES   (7,"Sunday");
+Query OK, 1 row affected (0.00 sec)
+
+mysql> COMMIT;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> 
+mysql> INSERT INTO YEAR (year) VALUES (2014);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO YEAR (year) VALUES (2015);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> COMMIT;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> INSERT INTO WEEKDAY (day, year, priceFactor) VALUES (1, 2014, 0.5); -- Mondays 2014
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO WEEKDAY (day, year, priceFactor) VALUES (2, 2014, 1.0); -- Tuesdays 2014 
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO WEEKDAY (day, year, priceFactor) VALUES (3, 2014, 1.5); -- Wednesdays 2014
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO WEEKDAY (day, year, priceFactor) VALUES (4, 2014, 1.5); -- Thursdays 2014
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO WEEKDAY (day, year, priceFactor) VALUES (5, 2014, 4.5); -- Fridays 2014
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO WEEKDAY (day, year, priceFactor) VALUES (6, 2014, 6.0); -- Saturdays 2014
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO WEEKDAY (day, year, priceFactor) VALUES (7, 2014, 4.5); -- Sundays 2014
+Query OK, 1 row affected (0.01 sec)
+
+mysql> INSERT INTO WEEKDAY (day, year, priceFactor) VALUES (1, 2015, 1.0); -- Mondays 2015                                                                                                                      
+Query OK, 1 row affected (0.01 sec)
+
+mysql> INSERT INTO WEEKDAY (day, year, priceFactor) VALUES (2, 2015, 1.5); -- Tuesdays  2015
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO WEEKDAY (day, year, priceFactor) VALUES (3, 2015, 2.0); -- Wednesdays 2015
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO WEEKDAY (day, year, priceFactor) VALUES (4, 2015, 2.0); -- Thursdays 2015
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO WEEKDAY (day, year, priceFactor) VALUES (5, 2015, 5.0); -- Fridays 2015
+Query OK, 1 row affected (0.01 sec)
+
+mysql> INSERT INTO WEEKDAY (day, year, priceFactor) VALUES (6, 2015, 6.5); -- Saturdays 2015
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO WEEKDAY (day, year, priceFactor) VALUES (7, 2015, 5.0); -- Sundays 2015
+Query OK, 1 row affected (0.00 sec)
+
+mysql> COMMIT;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> INSERT INTO WEEKLYFLIGHT (id, day, year, depTime, airportDep, airportDest) VALUES (1, 1, 2014, '06:35:00', 1, 2);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO WEEKLYFLIGHT (id, day, year, depTime, airportDep, airportDest) VALUES (2, 2, 2014, '13:40:00', 4, 3);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO WEEKLYFLIGHT (id, day, year, depTime, airportDep, airportDest) VALUES (3, 3, 2014, '20:00:00', 3, 1);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO WEEKLYFLIGHT (id, day, year, depTime, airportDep, airportDest) VALUES (4, 4, 2014, '14:50:00', 2, 4);                                                                                        
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO WEEKLYFLIGHT (id, day, year, depTime, airportDep, airportDest) VALUES (5, 5, 2015, '04:30:00', 4, 3);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO WEEKLYFLIGHT (id, day, year, depTime, airportDep, airportDest) VALUES (6, 6, 2015, '22:15:00', 2, 4);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO WEEKLYFLIGHT (id, day, year, depTime, airportDep, airportDest) VALUES (7, 7, 2015, '17:30:00', 1, 2);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> COMMIT;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> INSERT INTO FLIGHT (id, fdate, openSeats, weeklyflight) VALUES (1, '2014-08-27', 58, 1);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO FLIGHT (id, fdate, openSeats, weeklyflight) VALUES (2, '2014-12-26', 60, 2);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO FLIGHT (id, fdate, openSeats, weeklyflight) VALUES (3, '2015-01-11', 60, 7);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO FLIGHT (id, fdate, openSeats, weeklyflight) VALUES (4, '2015-07-14', 60, 5);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> COMMIT;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> INSERT INTO CCHOLDER (id, type, name, expMonth, expYear, ccNumber, amount, reservation) VALUES (1, 'Visa', 'Harrison Born', 10, 2016, 6487859495039485, 400, NULL);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO CCHOLDER (id, type, name, expMonth, expYear, ccNumber, amount, reservation) VALUES (2, 'Mastercard', 'Tony', 4, 2100, 9875048504820475, 693, NULL);                                          
+Query OK, 1 row affected (0.01 sec)
+
+mysql> INSERT INTO CCHOLDER (id, type, name, expMonth, expYear, ccNumber, amount, reservation) VALUES (3, 'Discovery', 'James', 2, 2018, 8408480524394859, 800, NULL);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO CCHOLDER (id, type, name, expMonth, expYear, ccNumber, amount, reservation) VALUES (4, 'Visa', 'Carl', 5, 2016, 8495830595839574, 200, NULL);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> COMMIT;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> INSERT INTO PASSENGER (id, FName, LName) VALUES (1, 'Harrison', 'Bornstein');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO PASSENGER (id, FName, LName) VALUES (2, 'Tony', 'Vilas');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO PASSENGER (id, FName, LName) VALUES (3, 'Lorenzo', 'Masciolini');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO PASSENGER (id, FName, LName) VALUES (4, 'Jonas', 'Vorwerg');
+Query OK, 1 row affected (0.01 sec)
+
+mysql> COMMIT;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> INSERT INTO CONTACT (passengerId, email, phoneNumber) VALUES (1, 'harbo085@student.liu.se', '0046720200001');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO CONTACT (passengerId, email, phoneNumber) VALUES (2, 'tonvi217@student.liu.se', '0046704051016');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> COMMIT;
+Query OK, 0 rows affected (0.01 sec)
+
+
+mysql> INSERT INTO RESERVATION (id, flight, ccholder, contact) VALUES (1,1,NULL,1);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO RESERVATION (id, flight, ccholder, contact) VALUES (2,1,NULL,1);                                                                                                                             
+Query OK, 1 row affected (0.00 sec)
+
+mysql> COMMIT;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> INSERT INTO PGROUP (passenger, reservation) VALUES (1, 2);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO PGROUP (passenger, reservation) VALUES (2, 2);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> COMMIT;
+Query OK, 0 rows affected (0.00 sec)
+ 
+mysql> INSERT INTO BOOKING (finalPrice, reservation) VALUES (100, 1);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> COMMIT;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> INSERT INTO TRAVELLER (ticketNumber, passenger, booking) VALUES (1, 1, 1);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> COMMIT;                                                                                                                                                                                                  
+Query OK, 0 rows affected (0.00 sec)
 
 
 
